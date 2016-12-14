@@ -1,8 +1,7 @@
 """
-Algorithm that converts "matrix LCA" (network) product systems into rooted trees.
+Algorithm that converts "matrix LCA" (network) product systems into 
+acyclic rooted trees.
 Built for use within the Brightway2 LCA framework (https://brightwaylca.org/).
-
-
 
 Instantiating a Tree (`tree = Tree(demand)` object generates a "network LCA" object that 
 is used in the construction of the rooted tree.
