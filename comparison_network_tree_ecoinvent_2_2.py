@@ -4,6 +4,13 @@ Uses Brightway2 framework and the Tree class. For a list of
 activities (by default, all of ecoinvent v2.2), Monte Carlo is carried out
 both on the network representation of the product system and on "rooted
 tree" versions.
+
+Before use, one must specify:
+    Lines 45, 152: Location of ecoinvent data files (spold)
+    Line 163: Methods to use for cut-off criteria
+    Line 183: list of cut-off criteria to use (0<cutoff<1)
+    Line 186: Filepath to location where you want to dump results
+    Line 193: Number of CPUs to allocate to this task
 """
 
 import os
@@ -32,7 +39,7 @@ def MC_network_and_trees(project_name, act_key_list, tree_cut_off_list,
 
     # Import data in the throw-away project.
     bw2setup()
-    # CHRIS: Please change filepath to location of ecoinvent v2.2 files
+    # change filepath to location of ecoinvent v2.2 files
     if 'ecoinvent 2.2' not in databases:
         ei22 = SingleOutputEcospold1Importer(
             r"E:\ecoinvent 2_2\datasets",
@@ -141,6 +148,17 @@ def chunks(l, n):
 if __name__ == '__main__':
 
     projects.set_current('compare uncertainties networks and trees')
+    bw2setup()
+    # change filepath to location of ecoinvent v2.2 files
+    if 'ecoinvent 2.2' not in databases:
+        ei22 = SingleOutputEcospold1Importer(
+            r"E:\ecoinvent 2_2\datasets",
+            'ecoinvent 2.2')
+        ei22.apply_strategies()
+        ei22.write_database()
+    else:
+        print("ecoinvent 2.2 already imported")
+    ei22 = Database('ecoinvent 2.2')
     
     list_methods = [
     ('ReCiPe Midpoint (H)', 'metal depletion', 'MDP'),
@@ -164,7 +182,7 @@ if __name__ == '__main__':
     
     tree_cut_off_list = [0.0001] 
     list_of_activities_keys = [act.key for act in Database('ecoinvent 2.2')]
-    # CHRIS: Please change filepath to location where you want to dump results    
+    # Filepath to location where results should be dumped
     output_dir_fp = r'E:\test\network_tree_comparison\raw'
 
     # In case you need to stop and restart program
