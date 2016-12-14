@@ -4,9 +4,13 @@ Uses Brightway2 framework and the Tree class. For a list of
 activities (by default, all of ecoinvent v3.3), Monte Carlo is carried out
 both on the network representation of the product system and on "rooted
 tree" versions.
-Current version can run code for a list of cut-off criteria.
-Current version will use *all* ReCiPe methods to evaluate whether upstream
-impacts are below cut-off.
+
+Before use, one must specify:
+    Lines 43, 154: Location of ecoinvent data files (spold)
+    Line 161: Methods to use for cut-off criteria
+    Line 181: list of cut-off criteria to use (0<cutoff<1)
+    Line 184: Filepath to location where you want to dump results
+    Line 191: Number of CPUs to allocate to this task
 """
 
 import os
@@ -35,7 +39,7 @@ def MC_network_and_trees(project_name, act_key_list, tree_cut_off_list,
 
     # Import data in the throw-away project.
     bw2setup()
-    # CHRIS: Please change filepath to location of ecoinvent v3.3 files
+    # change filepath to location of ecoinvent v3.3 files
     if 'ecoinvent 3.3 cut-off' not in databases:
         ei33cu = SingleOutputEcospold2Importer(
             r"E:\ecoinvent_3_3_cut_off\datasets",
@@ -144,7 +148,7 @@ def chunks(l, n):
 if __name__ == '__main__':
     projects.set_current('compare uncertainties networks and trees_ei33cu')
     bw2setup()
-    # CHRIS: change filepath to location of ecoinvent v3.3 files
+    # change filepath to location of ecoinvent v3.3 files
     if 'ecoinvent 3.3 cut-off' not in databases:
         ei33cu = SingleOutputEcospold2Importer(
             r"E:\ecoinvent_3_3_cut_off\datasets",
@@ -174,9 +178,9 @@ if __name__ == '__main__':
     ('ReCiPe Midpoint (H)', 'climate change', 'GWP100')
     ]
     
-    tree_cut_off_list = [0.1] # Cut-off criteria 
+    tree_cut_off_list = [0.0001] # Cut-off criteria 
     list_of_activities_keys = [act.key for act in Database('ecoinvent 3.3 cut-off')]
-    # CHRIS: Please change filepath to location where you want to dump results    
+    # filepath to location where you want to dump results    
     output_dir_fp = r'E:\test\network_tree_comparison\raw'
 
     # In case you need to stop and restart program
@@ -184,7 +188,7 @@ if __name__ == '__main__':
     to_treat = [file for file in list_of_activities_keys\
                 if file[1] not in already_treated]
 
-    CPUS = 1#mp.cpu_count()
+    CPUS = mp.cpu_count()
     activity_sublists = chunks(to_treat, ceil(len(to_treat)/CPUS))
 
     projects.set_current('default')
