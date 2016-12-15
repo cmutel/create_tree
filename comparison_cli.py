@@ -86,8 +86,7 @@ def main(version, methods, cutoff, cpus, output, iterations):
     already_treated = [file[:-7] for file in os.listdir(output)
                        if file[-7:] == '.pickle']
     to_treat = [act.key for act in ecoinvent
-                if act.key[1] not in already_treated][:20]
-
+                if act.key[1] not in already_treated]
     activity_sublists = chunks(to_treat, ceil( len(to_treat) / cpus ))
 
     workers = []
