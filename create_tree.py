@@ -23,6 +23,7 @@ Developed by Pascal Lesage and Chris Mutel.
 """
 
 from brightway2 import *
+from backend import ProcessedBackend
 import collections
 import copy
 import itertools
@@ -239,9 +240,12 @@ class Tree(object):
                 if not exc['input'] == exc['output']:
                     dataset['exchanges'].append(exc_dataset)
             self.listTreeNodeDatasets.append(dataset)
-   
-    def write_new_data(self, new_name, node_data):
-        database = Database(new_name)
+
+    def write_new_data(self, new_name, node_data, only_processed=True):
+        if only_processed:
+            database = ProcessedBackend(new_name)
+        else:
+            database = Database(new_name)
         database.write({(o['database'], o['code']): o for o in node_data})
         return database
 
