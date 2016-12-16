@@ -156,13 +156,6 @@ def tree_worker(base_project, activities, cutoff,
         for method, cfs in characterization_matrices.items():
             results[method]['deterministic'] = (cfs * lca.inventory).sum()
 
-        MC = MonteCarloLCA({act:1})
-        for iteration in range(iterations):
-            s = next(MC) # s contains supply array
-            lci = MC.biosphere_matrix * s
-            for method, cfs in characterization_matrices.items():
-                results[method]['network'][iteration] = (cfs*lci).sum()
-
         # Tree LCAs
         tree = Tree({act:1})
         tree.traverse(list_methods,
@@ -190,11 +183,32 @@ def tree_worker(base_project, activities, cutoff,
 
         # Do Monte Carlo
         MC = MonteCarloLCA({tree.root:1})
+        next(MC)
+
+        tree_demand = MC.demand_array.copy()
+        tree_guess = MC.guess.copy()
+
+        MC.build_demand_array({act: 1})
+        MC.guess = None
+        network_demand = MC.demand_array.copy()
+        network_guess = MC.solve_linear_system()
+
         for iteration in range(iterations):
+            # Get scores for tree
+            MC.demand_array = tree_demand
+            MC.guess = tree_guess
             s = next(MC)
             lci = MC.biosphere_matrix * s
             for method, cfs in characterization_matrices.items():
                 results[method]['tree-{}'.format(cutoff)][iteration] = (cfs * lci).sum()
+
+            # Use same technosphere matrix iteration to get scores for network
+            MC.demand_array = network_demand
+            MC.guess = network_guess
+            s = MC.solve_linear_system()
+            lci = MC.biosphere_matrix * s
+            for method, cfs in characterization_matrices.items():
+                results[method]['network'][iteration] = (cfs * lci).sum()
 
         #Dump results to disk
         with open(os.path.join(output_fp, "{}.pickle".format(act['code'])),"wb") as f:
